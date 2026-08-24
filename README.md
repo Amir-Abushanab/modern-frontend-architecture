@@ -31,12 +31,14 @@ Reference implementation of the patterns: [`ultimate-ts-starter`](https://github
 
 ## Install
 
-**As a plugin** (once this repo is pushed to a git host):
+**As a plugin**, via the [amir-skills marketplace](https://github.com/Amir-Abushanab/skills):
 
 ```
-/plugin marketplace add Amir-Abushanab/modern-frontend-architecture
+/plugin marketplace add Amir-Abushanab/skills
 /plugin install modern-frontend-architecture@amir-skills
 ```
+
+(Adding this repo directly as a marketplace also works: `/plugin marketplace add Amir-Abushanab/modern-frontend-architecture`, then `/plugin install modern-frontend-architecture@modern-frontend-architecture`.)
 
 **Via the [skills CLI](https://github.com/vercel-labs/skills)** (cross-agent — Claude Code, Cursor, OpenCode, …):
 

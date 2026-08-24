@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "amir-skills",
-  "description": "Amir's Claude Code skills.",
+  "name": "modern-frontend-architecture",
+  "description": "Direct-install marketplace for the modern-frontend-architecture skill. The full catalog lives at Amir-Abushanab/skills (amir-skills).",
   "owner": { "name": "Amir Abushanab" },
   "plugins": [
     {
