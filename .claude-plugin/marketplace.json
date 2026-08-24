@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "amir-skills",
+  "description": "Amir's Claude Code skills.",
+  "owner": { "name": "Amir Abushanab" },
+  "plugins": [
+    {
+      "name": "modern-frontend-architecture",
+      "source": "./",
+      "description": "House standard for architecting modern web frontends — type-safe, agent-first defaults for stack, data, state, styling, security, logging, i18n, and deploy.",
+      "category": "development",
+      "keywords": ["frontend", "architecture", "react", "tanstack", "typescript"]
+    }
+  ]
+}

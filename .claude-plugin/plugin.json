@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "modern-frontend-architecture",
+  "version": "0.1.0",
+  "description": "House standard for architecting modern web frontends — opinionated, type-safe, agent-first defaults for stack, data, state, styling, security, logging, i18n, and deploy.",
+  "author": { "name": "Amir Abushanab" },
+  "homepage": "https://github.com/Amir-Abushanab/modern-frontend-architecture",
+  "repository": "https://github.com/Amir-Abushanab/modern-frontend-architecture",
+  "license": "MIT",
+  "keywords": ["frontend", "architecture", "react", "tanstack", "typescript", "cloudflare", "agent-first"]
+}
