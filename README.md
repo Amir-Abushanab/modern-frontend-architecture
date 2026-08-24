@@ -81,7 +81,7 @@ The logging reference (`references/logging.md`) is inspired by a decade of exper
 
 ## Status
 
-v0.1, web-first.
+v0.2, web-first.
 
 ## License
 
