@@ -38,6 +38,12 @@ Reference implementation of the patterns: [`ultimate-ts-starter`](https://github
 /plugin install modern-frontend-architecture@amir-skills
 ```
 
+**Via the [skills CLI](https://github.com/vercel-labs/skills)** (cross-agent — Claude Code, Cursor, OpenCode, …):
+
+```
+npx skills add Amir-Abushanab/modern-frontend-architecture
+```
+
 **Local dev (symlink):**
 
 ```
