@@ -113,12 +113,7 @@ function grid() {
 
 const MONO = 'Menlo, Consolas, monospace'
 const text = `
-  <text x="448" y="136" font-family="${MONO}" font-size="15" letter-spacing="5" fill="${CHIP}" opacity="0.85">A CLAUDE CODE SKILL</text>
-  <text x="448" y="196" font-family="${MONO}" font-weight="bold" font-size="40" fill="${TEXT}">modern-frontend-architecture</text>
-  <text x="448" y="244" font-family="${MONO}" font-size="20" fill="${SUB}">establish the boundary on day 1 · defer the implementation</text>
-  <path d="M 448 276 h 96" stroke="${DASH}" stroke-width="3" stroke-dasharray="8 7" opacity="0.7"/>
-  <path d="M 560 276 h 96" stroke="${SOLID}" stroke-width="3" opacity="0.85"/>
-  <text x="672" y="281" font-family="${MONO}" font-size="15" fill="${SUB}" opacity="0.9">blueprint → build</text>`
+  <text x="448" y="215" font-family="${MONO}" font-weight="bold" font-size="44" fill="${TEXT}">modern-frontend-architecture</text>`
 
 for (let f = 0; f < FRAMES; f++) {
   const T = f / FPS
