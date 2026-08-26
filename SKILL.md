@@ -19,20 +19,20 @@ House standard for web frontends. Take the `Use` default; open the reference for
 
 | Decision | Use | Not | Why (when non-obvious) |
 |---|---|---|---|
-| Package manager | pnpm + catalogs | npm / yarn | |
+| Package manager | pnpm + catalogs · existing Bun toolchain: keep Bun, mirror the gates (bunfig `minimumReleaseAge = 604800`) | npm / yarn · Bun without the cooldown configured | pnpm takes precedence on greenfield; Bun ≥ 1.3 has the same enforced install gate (**seconds**, not pnpm's minutes) |
 | Web stack | TanStack Start (default; SSR+SSG) · Astro only if super-SEO-critical or content-only | Next.js · Astro/split by default | one Start app covers mixed sites; reach for Astro only when SEO is paramount; Next couples rendering to its model + Vercel |
 | Deploy | Cloudflare · self-host (first-class) | Vercel | |
 | Lint / format | oxc (oxlint + oxfmt), error-only | ESLint+Prettier · Biome | Rust-fast *and* skips the TS compiler API, so TS 7 works today |
 | Types | TS 7 native `tsc`, strict + `noUncheckedIndexedAccess` | TS 6 · loose | |
-| Wire types | oRPC + zod | tRPC · hand-typed | OpenAPI-compatible, edge-agnostic |
+| Wire types | oRPC + zod · simple Hono-server projects: Hono RPC (`hc<AppType>`) | tRPC · hand-typed | OpenAPI-compatible, edge-agnostic; Hono RPC = same seam, no extra layer — graduate to oRPC at OpenAPI / non-TS consumers |
 | Server data | oRPC → TanStack Query → TanStack DB collection (`useLiveQuery`, optimistic) | raw Query for entity data · hand-rolled cache writes | collection gives optimistic+rollback and the sync seam free — deletes ~80 lines |
 | Loading / error | Suspense + ErrorBoundary | `isPending` / `isError` plumbing | |
-| Memoization | React Compiler | manual `useMemo` / `useCallback` | |
+| Memoization | React Compiler via oxc — `react({ compiler: true })` + `oxc-transform-react` | manual `useMemo` / `useCallback` · `babel-plugin-react-compiler` (fallback only) | one Rust pass (compiler + JSX + Fast Refresh), ~10× faster, toolchain stays Babel-free |
 | Client state | collection → zustand / xstate-store → XState | Context/`useEffect` webs · a hand-rolled FSM that keeps growing | small flat FSM is fine; hierarchy/parallelism/coordinating actors = reach for XState |
 | URL state | typed search params (TanStack Router + zod) · loaders · drawers-as-routes | untyped `useSearchParams` | |
 | Realtime | day-1 transport by deploy: CF → Durable Objects · self-host → ws + Redis | ad-hoc socket per feature · sockets on serverless | |
 | Forms | TanStack Form + zod (reuse the wire schema) → submit via the collection / oRPC mutation | react-hook-form · Formik · bare `FormData` for anything nontrivial | headless + typed; the zod input schema is shared with oRPC, so validation and wire types can't drift |
-| Styling | Base UI (shadcn copy-paste) → house primitives · semantic-token-only props | `className` · raw Tailwind · arbitrary px/hex · palette primitives (`blue-500`) in components | layout via token-only `Box`/`Row`/`Stack`; palette lives in the theme file only; variance via props; rows via `ButtonList` |
+| Styling | Base UI (shadcn copy-paste) → house primitives · semantic-token-only props · logical direction (`ps-*`/`ms-*`/`text-start`/`start-0`) | `className` · raw Tailwind · arbitrary px/hex · palette primitives (`blue-500`) in components · physical `pl-*`/`ml-*`/`text-left`/`left-0` | layout via token-only `Box`/`Row`/`Stack`; palette lives in the theme file only; variance via props; rows via `ButtonList`; logical-by-default makes RTL a `dir` flip, not a migration |
 | Structure | bulletproof-react, enforced by knip + dependency-cruiser | unenforced folders | gates are not optional |
 | Git hooks & checks | one `pnpm check` (+ `pnpm fix`); `.githooks` simple · lefthook complex; pre-commit autofix on staged · pre-push + CI full gate | husky · everything in pre-commit · hook↔CI drift | one script = source of truth, CI authoritative (hooks bypassable); lefthook is parallel + one YAML |
 | Dep updates | pnpm `minimumReleaseAge: 10080` (7d, the enforced gate) + ncu cooldown in `.ncurc.json` | bare `--cooldown` flag · adopting versions published hours ago | `minimumReleaseAge` enforces on every install incl. transitive; ncu is advisory (config covers bare `ncu` too) |
@@ -52,6 +52,7 @@ House standard for web frontends. Take the `Use` default; open the reference for
 | components · design system | `references/design-system.md` |
 | internationalization | `references/i18n-rtl.md` |
 | CI gates · git hooks · supply-chain · enforcement · the factory | `references/agent-first-factory.md` |
+| rule → enforcer map · ratchets | `references/enforcement-map.md` |
 | runtime security · CSP · headers · secrets · CSRF · XSS | `references/security.md` |
 | server-side logging · wide events · client telemetry · sampling | `references/logging.md` |
 

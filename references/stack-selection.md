@@ -25,9 +25,12 @@ pnpm workspaces, plain (no Nx/Turbo). `apps/*` + `packages/*`. Pin dependency ve
 
 pnpm 11 blocks dependency build scripts by default — allow the few you need under `allowBuilds:` in `pnpm-workspace.yaml` (e.g. `esbuild`, `sharp`).
 
+Already a **Bun** repo? Keep Bun — pnpm isn't worth a toolchain migration; it takes precedence on greenfield only. What must carry over is the *gate*: bunfig `minimumReleaseAge` (→ `agent-first-factory.md`).
+
 ## 4. Toolchain
 
 - **Lint + format: oxc** (oxlint + oxfmt), **error-only**, no warnings. Over Biome/ESLint because it's Rust-fast *and* doesn't consume the TypeScript compiler API — so it runs on **TS 7** today (typescript-eslint can't until 7.1, ~Oct 2026).
+- **React Compiler: the oxc integration, not the Babel plugin.** `@vitejs/plugin-react` ≥ 6.1.0 with `react({ compiler: true })` + `oxc-transform-react` (Rust port of the compiler) — one Rust pass owns React Compiler + TS/JSX + Fast Refresh, ~10× faster than `babel-plugin-react-compiler`, and keeps the toolchain Babel-free end to end (oxc.rs/blog/2026-08-18-react-compiler-support). Experimental as of Aug 2026: if it miscompiles a component, the Babel plugin is a drop-in *fallback* (`babel: { plugins: [['babel-plugin-react-compiler', {}]] }`), never a reason to skip the compiler.
 - **Types: TypeScript 7** native `tsc`, `strict` + `noUncheckedIndexedAccess` + `noUnusedLocals`/`noUnusedParameters` + `verbatimModuleSyntax`. `tsc --noEmit` is a CI gate, separate from the build.
 - Cloudflare: build via `vite-plus` (`vp`). Off Cloudflare: plain Vite.
 

@@ -15,6 +15,7 @@ oRPC (typed transport) → TanStack Query (sync) → TanStack DB collection (rea
 ```
 
 - **oRPC + zod** for the client↔server boundary — end-to-end inferred types, no codegen. Over tRPC because oRPC is OpenAPI-compatible and framework/edge-agnostic (fits Cloudflare and non-TS consumers). Never hand-type backend types.
+- **Simple projects: Hono RPC instead.** Server already Hono + small API surface + TS-only consumers → `hc<AppType>` with `@hono/zod-validator` is the same inferred boundary with no extra RPC layer. Graduate to oRPC when OpenAPI or non-TS consumers land, or when the app grows enough that `AppType` inference drags the IDE/`tsc` (Hono's documented large-app limit). Same seam either way — zod schemas at the edge, inferred client — so the swap is mechanical.
 - **TanStack Query** is the sync primitive, mostly *under* collections. Direct use only for one-shot/imperative calls.
 - **TanStack DB collection** is the default reactive store for any entity the UI reads and writes.
 

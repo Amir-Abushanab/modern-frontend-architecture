@@ -33,7 +33,7 @@ const dict = (await import(`./locales/${locale}/${ns}.ts`)).default as Dict
 
 ## RTL
 
-Set `document.documentElement.dir` from an **explicit** RTL set (`new Set(['ar','he','fa'])`), not `Intl.Locale.getTextInfo()` (Chromium-only, not Baseline). Author layout with **CSS logical properties** (`margin-inline`, `inset-inline-start`, `text-align: start`) so the UI mirrors for free. Mirror directional icons explicitly (`[dir=rtl] .chevron { transform: scaleX(-1) }`).
+Set `document.documentElement.dir` from an **explicit** RTL set (`new Set(['ar','he','fa'])`), not `Intl.Locale.getTextInfo()` (Chromium-only, not Baseline). Layout already mirrors for free: **CSS logical properties / logical Tailwind (`ps-*`, `text-start`)** are the house styling default from day 1, enforced by lint (→ `design-system.md`) — not an i18n-time retrofit. If physical `left/right` snuck in somewhere, that's a lint gap to fix, not an RTL task. What RTL actually adds: the `dir` flip above, and mirroring directional icons explicitly (`[dir=rtl] .chevron { transform: scaleX(-1) }`).
 
 ## The one tradeoff
 

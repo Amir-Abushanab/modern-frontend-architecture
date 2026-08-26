@@ -15,6 +15,7 @@ oxfmt --check     # format
 tsc --noEmit      # TS 7 types
 knip              # unused files, deps, exports
 depcruise         # import-boundary rules
+check-tokens …    # rule-scripts + ratchets — what lint can't see (enforcement-map.md)
 vitest run        # unit / component
 ```
 
@@ -41,7 +42,7 @@ CI is the source of truth; the hooks are just its fast local mirror.
 
 Two cooldown layers — don't run code a stranger published an hour ago — and they are *not* equally binding:
 
-- **Install-time — pnpm `minimumReleaseAge` (the enforced gate).** In `pnpm-workspace.yaml`, `minimumReleaseAge: 10080` (7 days, in minutes). pnpm refuses to install *any* version — **including transitive deps** — published less than 7 days ago, the window in which most compromised packages get caught and yanked. Enforced on every install and in CI, impossible to forget. pnpm 11 already defaults it to `1440` (1 day); raise it to 7. `minimumReleaseAgeExclude: [pkg]` for the rare thing you must take immediately.
+- **Install-time — pnpm `minimumReleaseAge` (the enforced gate).** In `pnpm-workspace.yaml`, `minimumReleaseAge: 10080` (7 days, in minutes). pnpm refuses to install *any* version — **including transitive deps** — published less than 7 days ago, the window in which most compromised packages get caught and yanked. Enforced on every install and in CI, impossible to forget. pnpm 11 already defaults it to `1440` (1 day); raise it to 7. `minimumReleaseAgeExclude: [pkg]` for the rare thing you must take immediately. **Bun projects (≥ 1.3): same gate, different units** — `bunfig.toml` `[install] minimumReleaseAge = 604800` (**seconds**, not pnpm's minutes) + `minimumReleaseAgeExcludes: [pkg]`; a Bun toolchain with this configured passes the bar (pnpm still takes precedence greenfield). Known gap: `bunx` doesn't enforce it.
 - **Update-time — ncu, in a committed `.ncurc.json` (advisory).** Put `cooldown: 7` (plus `target`, `packageManager: pnpm`, and any version pins) in `.ncurc.json` — **not a bare `--cooldown` flag**. The file also governs a bare `ncu` / `ncu -u` (an agent that skips your pnpm script still gets the cooldown) and scales as ncu settings accumulate; wrap it in a pnpm script (`"deps": "ncu"`) for discoverability too — belt and suspenders. ncu then won't *propose* a version younger than 7 days; `--format cooldown` lists the skips. Reach for `.ncurc.js` only when you need per-package predicate functions (JSON/CLI can't express those). CLI flags override the file.
 
 **Which layer does the work:** ncu is proposal-time — skippable, overridable, and it only decides what to *suggest*. `minimumReleaseAge` is the wall: enforced on every install, transitively, in CI. The `.ncurc.json` upgrade just hardens the advisory half; your actual solidity comes from the pnpm layer.
@@ -68,4 +69,4 @@ changesets for versioning + changelogs.
 
 ## Principle
 
-Every recurring decision an agent would otherwise re-litigate becomes a lint rule, a boundary rule, a primitive, or a copy-paste-able pattern in `ultimate-ts-starter`. Consistency is a tooling property, not a matter of discipline.
+Every recurring decision an agent would otherwise re-litigate becomes a lint rule, a boundary rule, a primitive, or a copy-paste-able pattern in `ultimate-ts-starter`. Consistency is a tooling property, not a matter of discipline. The rule → enforcer table is `enforcement-map.md`.
