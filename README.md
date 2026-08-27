@@ -4,9 +4,9 @@
 
 # modern-frontend-architecture
 
-A Claude Code **skill** that steers agents to architect a modern web frontend to one opinionated, type-safe, agent-first house standard — stack, data, state, styling, security, logging, i18n, and deploy.
+An **agent skill** that holds coding agents to one opinionated, type-safe, agent-first house standard for web frontends — stack, data, state, styling, security, logging, i18n, and deploy.
 
-It's a *decision layer*, not a tutorial: a lean `SKILL.md` of blessed defaults that routes to focused references, and defers to other skills (`modern-web-guidance`, `vercel-composition-patterns`, `vercel-react-best-practices`) for depth.
+It's a *decision layer*, not a tutorial: a lean `SKILL.md` of blessed defaults that routes to focused references, and defers to companion skills for depth. Plain `SKILL.md` format — it works in any agent that loads skills (Claude Code, Cursor, OpenCode, …).
 
 ## The one principle
 
@@ -31,59 +31,44 @@ Reference implementation of the patterns: [`ultimate-ts-starter`](https://github
 
 ## Install
 
-**As a plugin**, via the [amir-skills marketplace](https://github.com/Amir-Abushanab/skills):
+**Any agent** — via the [skills CLI](https://github.com/vercel-labs/skills):
+
+```
+npx skills add Amir-Abushanab/modern-frontend-architecture
+```
+
+**Claude Code** — as a plugin, via the [amir-skills marketplace](https://github.com/Amir-Abushanab/skills):
 
 ```
 /plugin marketplace add Amir-Abushanab/skills
 /plugin install modern-frontend-architecture@amir-skills
 ```
 
-(Adding this repo directly as a marketplace also works: `/plugin marketplace add Amir-Abushanab/modern-frontend-architecture`, then `/plugin install modern-frontend-architecture@modern-frontend-architecture`.)
-
-**Via the [skills CLI](https://github.com/vercel-labs/skills)** (cross-agent — Claude Code, Cursor, OpenCode, …):
-
-```
-npx skills add Amir-Abushanab/modern-frontend-architecture
-```
-
-**Local dev (symlink):**
-
-```
-ln -s "$PWD" ~/.claude/skills/modern-frontend-architecture
-```
-
-The `.claude-plugin/plugin.json` makes the symlinked folder load as a skills-directory plugin.
+**Manually** — clone or symlink this repo into your agent's skills directory (`~/.claude/skills/`, `.agents/skills/`, …). `SKILL.md` at the root is the entry point.
 
 ## Companion skills
 
-This skill *defers* depth rather than duplicating it. For full value, install alongside:
+Depth is deferred, not duplicated. For full value, install alongside:
 
-- **`modern-web-guidance`** — platform HTML/CSS/JS (usually already user-global).
+- **`modern-web-guidance`** — platform HTML/CSS/JS.
 - **`web-animation-design`** — motion.
 - **`vercel-composition-patterns`** — component composition depth.
 - **`vercel-react-best-practices`** — React render/perf.
 
-The two `vercel-*` are project-scoped in this setup (APM-managed under `.agents/skills/`), not user-global. If a project doesn't have them, the skill degrades gracefully — it falls back to `modern-web-guidance` + first principles instead of dead-ending.
+If a project is missing them, the skill degrades gracefully — it falls back to first principles instead of dead-ending.
 
 ## Structure
 
 ```
-SKILL.md                     # the lean router + defaults table
-references/                  # loaded on demand
-  stack-selection.md · data-and-typesafety.md · state.md
-  design-system.md · i18n-rtl.md · agent-first-factory.md
-  security.md · logging.md
-.claude-plugin/              # distribution manifests (plugin + marketplace)
-assets/                      # logo.webp + its generator (logo.gen.mjs)
+SKILL.md       # the lean router + defaults table
+references/    # loaded on demand — stack-selection · data-and-typesafety · state
+               # design-system · i18n-rtl · agent-first-factory · enforcement-map
+               # security · logging
 ```
 
 ## Credits
 
 The logging reference (`references/logging.md`) is inspired by a decade of experience, [the original list](https://x.com/FardeemM/status/2067802731960520909) from [Fardeem Munir](https://github.com/fardeem), and [Logging Sucks — Your Logs Are Lying To You](https://loggingsucks.com/) by [Boris Tane](https://boristane.com).
-
-## Status
-
-v0.2, web-first.
 
 ## License
 
