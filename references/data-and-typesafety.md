@@ -42,7 +42,7 @@ Suspense + ErrorBoundary. `useSuspenseQuery` (or `useLiveQuery` off a primed col
 
 ## URL state
 
-TanStack Router with a **zod search schema** (`@tanstack/zod-adapter`, `fallback`/`default`) — `useSearch`/`navigate`/`Link` are typed. The URL is the store: filters/sort/pagination live in search params; declare the ones that affect data in **`loaderDeps`** (→ Prefetching, below). A detail panel is a **nested route** (`/issues/$issueId`) — "drawers-as-routes": linkable, bookmarkable, filters preserved. Concentrate writes in one typed helper (reset page on filter change; `replace` for edits, `push` for navigation).
+TanStack Router with a **zod search schema** (`@tanstack/zod-adapter`, `fallback`/`default`) — `useSearch`/`navigate`/`Link` are typed. The URL is the store: filters/sort/pagination live in search params; declare the ones that affect data in **`loaderDeps`** (→ Prefetching, below). A detail panel or content modal is a **nested route** (`/issues/$issueId`), a standalone dialog a search param (`?dialog=invite`) — "overlays-as-routes": linkable, bookmarkable, filters preserved, back dismisses. Transient prompts (confirm-delete) stay local state. Concentrate writes in one typed helper (reset page on filter change; `replace` for edits, `push` for navigation).
 
 ## Prefetching (route loaders)
 
