@@ -1,5 +1,8 @@
 // Animated logo generator — "Blueprint → Build"
-// Emits one SVG per frame; rasterize with rsvg-convert, assemble with img2webp.
+// Emits one SVG per frame; rasterize with rsvg-convert, assemble with img2webp:
+//   node assets/logo.gen.mjs
+//   for f in assets/frames/*.svg; do rsvg-convert -w 1280 -h 400 $f -o ${f%.svg}.png; done
+//   img2webp -loop 0 -d 42 -lossy -q 80 assets/frames/f*.png -o assets/logo.webp && rm -rf assets/frames
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -106,14 +109,15 @@ function grid() {
   for (let x = 40; x < W; x += 40) s += `<line x1="${x}" y1="0" x2="${x}" y2="${H}"/>`
   for (let y = 40; y < H; y += 40) s += `<line x1="0" y1="${y}" x2="${W}" y2="${y}"/>`
   s += '</g>'
-  const crosses = [[480, 96], [1096, 152], [560, 328], [1188, 300], [428, 232]]
+  const crosses = [[480, 96], [1096, 152], [560, 328], [1188, 300], [416, 312]]
     .map(([x, y]) => `<path d="M ${x - 6} ${y} h 12 M ${x} ${y - 6} v 12" stroke="${DASH}" stroke-width="1.5" opacity="0.16"/>`).join('')
   return s + crosses
 }
 
 const MONO = 'Menlo, Consolas, monospace'
 const text = `
-  <text x="448" y="215" font-family="${MONO}" font-weight="bold" font-size="44" fill="${TEXT}">modern-frontend-architecture</text>`
+  <text x="448" y="194" font-family="${MONO}" font-weight="bold" font-size="44" fill="${TEXT}">modern-frontend-architecture</text>
+  <text x="448" y="238" font-family="${MONO}" font-size="22" fill="${SUB}">Architect your frontend like a 10x engineer.</text>`
 
 for (let f = 0; f < FRAMES; f++) {
   const T = f / FPS
