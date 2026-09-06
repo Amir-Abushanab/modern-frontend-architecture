@@ -9,7 +9,7 @@ House standard for web frontends. Take the `Use` default; open the reference for
 
 **Guiding rule:** establish the boundary on day 1, defer the implementation. Default to the collection seam — don't build Electric. Pick the realtime transport — don't build the system.
 
-**Current best, not eternal truth — last reviewed 2026-08-24.** The *boundaries* (the decisions and seams) below are durable; the *named tools and versions* filling them are the current best as of that review. If today's date is well past it, treat specific tool/version picks as possibly superseded — keep the decision, re-verify what best fills it now. This is the guiding rule applied to the skill itself: the seam is the commitment, the tool is the implementation.
+**Current best, not eternal truth — last reviewed 2026-09-06.** The *boundaries* (the decisions and seams) below are durable; the *named tools and versions* filling them are the current best as of that review. If today's date is well past it, treat specific tool/version picks as possibly superseded — keep the decision, re-verify what best fills it now. This is the guiding rule applied to the skill itself: the seam is the commitment, the tool is the implementation.
 
 **Defer, don't duplicate:** platform HTML/CSS/JS → `modern-web-guidance` · composition → `vercel-composition-patterns` · React perf → `vercel-react-best-practices` · motion → `web-animation-design`. The two `vercel-*` are companion skills — install them alongside this one (see README); if a target project doesn't have them, fall back to `modern-web-guidance` + first principles, don't inline their depth here.
 
