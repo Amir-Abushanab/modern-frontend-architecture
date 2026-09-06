@@ -33,6 +33,7 @@ House standard for web frontends. Take the `Use` default; open the reference for
 | Realtime | day-1 transport by deploy: CF → Durable Objects · self-host → ws + Redis | ad-hoc socket per feature · sockets on serverless | |
 | Forms | TanStack Form + zod (reuse the wire schema) → submit via the collection / oRPC mutation | react-hook-form · Formik · bare `FormData` for anything nontrivial | headless + typed; the zod input schema is shared with oRPC, so validation and wire types can't drift |
 | Styling | Base UI (shadcn copy-paste) → house primitives · semantic-token-only props · logical direction (`ps-*`/`ms-*`/`text-start`/`start-0`) | `className` · raw Tailwind · arbitrary px/hex · palette primitives (`blue-500`) in components · physical `pl-*`/`ml-*`/`text-left`/`left-0` | layout via token-only `Box`/`Row`/`Stack`; palette lives in the theme file only; variance via props; rows via `ButtonList`; logical-by-default makes RTL a `dir` flip, not a migration |
+| Typography | role-named type scale as tokens (`--text-*`) · tracking + leading tokens · self-hosted variable woff2 + `preload` + measured metric-matched fallback | raw `font-size`/`letter-spacing`/`line-height` in components · Google Fonts · `font-size-adjust: from-font` · guessed fallback metrics | type drift is invisible in review, so untokenized sizes become a continuum instead of a scale; fallback metrics decide line breaks, so they get measured |
 | Structure | bulletproof-react, enforced by knip + dependency-cruiser | unenforced folders | gates are not optional |
 | Git hooks & checks | one `pnpm check` (+ `pnpm fix`); `.githooks` simple · lefthook complex; pre-commit autofix on staged · pre-push + CI full gate | husky · everything in pre-commit · hook↔CI drift | one script = source of truth, CI authoritative (hooks bypassable); lefthook is parallel + one YAML |
 | Dep updates | pnpm `minimumReleaseAge: 10080` (7d, the enforced gate) + ncu cooldown in `.ncurc.json` | bare `--cooldown` flag · adopting versions published hours ago | `minimumReleaseAge` enforces on every install incl. transitive; ncu is advisory (config covers bare `ncu` too) |
@@ -50,6 +51,7 @@ House standard for web frontends. Take the `Use` default; open the reference for
 | data · URL state · realtime | `references/data-and-typesafety.md` |
 | where state lives | `references/state.md` |
 | components · design system | `references/design-system.md` |
+| type scale · tracking/leading · font loading · fallback metrics | `references/typography.md` |
 | internationalization | `references/i18n-rtl.md` |
 | CI gates · git hooks · supply-chain · enforcement · the factory | `references/agent-first-factory.md` |
 | rule → enforcer map · ratchets | `references/enforcement-map.md` |

@@ -26,6 +26,8 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | No raw layout elements | lint | `react/forbid-elements` (`div`, `section`, `span`…) with message → `Box`/`Row`/`Stack`; rule off inside `src/shared/ui/**` |
 | Token-only color | types + script | prop unions; `check-tokens` bans palette classes (`bg-teal-600`), `bg-white`/`text-black`, raw `#hex`/`rgb()`/`oklch()`, raw channel bytes (PDF/canvas) |
 | No arbitrary values (`[400px]`) | script | grep `className` for `[…]` |
+| Token-only type | script | grep components for raw `font-size`/`letter-spacing`/`line-height`/`font-family`; `em` allowlisted (context-relative: inline `code`, `sup`) |
+| Font loading | review | self-hosted variable woff2 · `preload` above-the-fold faces · fallback metrics measured per pair, not generated |
 | Logical direction only | script | grep `pl-`/`ml-`/`text-left`/`left-0`/`margin-left`… (no oxlint Tailwind plugin) |
 | `unsafeClassName` bounded | ratchet | budget count |
 | Forms on-stack | lint | `no-restricted-imports`: `react-hook-form`, `formik` |
