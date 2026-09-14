@@ -64,6 +64,6 @@ Prefer the high-level properties (`font-weight`, `font-optical-sizing`, `font-st
 
 ## Enforcement
 
-Token-only type is script tier (grep, same as logical direction): components carry no raw `font-size`, `letter-spacing`, `line-height`, or `font-family`, with `em` allowlisted per the carve-out. Font loading is review tier. Per-rule table → `enforcement-map.md`.
+Token-only type is lint + script: `@shadcn/lint` `no-arbitrary-values` rejects arbitrary type classes (`text-[13px]`); a grep keeps components free of raw `font-size`, `letter-spacing`, `line-height`, or `font-family`, with `em` allowlisted per the carve-out. Font loading is review tier. Per-rule table → `enforcement-map.md`.
 
 Motion → `web-animation-design`. Platform CSS → `modern-web-guidance`.

@@ -29,7 +29,7 @@ Run it by **cost**, not all-at-once:
 
 CI is the source of truth; the hooks are just its fast local mirror.
 
-- **oxlint rule sets** — beyond the defaults, enable **`jsx-a11y`** (accessibility as a gate, not a hope — missing `alt`, click-without-keyboard, bad ARIA all fail the build) and the security set from `security.md`. Error-only, like everything else.
+- **oxlint rule sets** — beyond the defaults, enable **`jsx-a11y`** (accessibility as a gate, not a hope — missing `alt`, click-without-keyboard, bad ARIA all fail the build), the security set from `security.md`, and **`@shadcn/lint`** via `jsPlugins` (Tailwind token rules → `design-system.md`). Error-only, like everything else.
 - **knip** — deletes creep: unused files, dependencies, exports. Redundancy is a bug.
 - **dependency-cruiser** — enforces the bulletproof-react boundaries: features can't import each other's internals; direction is `app → features → components/lib` only (no upward or sideways reaching). This is what stops structure rotting into vibes.
 

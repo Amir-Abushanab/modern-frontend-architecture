@@ -22,7 +22,7 @@ Day-1 decisions are cheap, reversible *boundary* choices — never premature inf
 | Deploy | Cloudflare · self-host | Vercel |
 | Wire types | oRPC + zod | tRPC · hand-typed |
 | Server data | oRPC → TanStack Query → TanStack DB collection | raw Query + hand-rolled optimism |
-| Styling | design-system primitives · variant props | `className` on components |
+| Design system | typed primitives · stock shadcn + `@shadcn/lint` | plain shadcn (open `className`, no lint) |
 | i18n | typed dict (`as const` + `Paths<T>`) + `Intl.*` | i18next · Lingui |
 
 Full table + reasoning in [`SKILL.md`](./SKILL.md). Toolchain: pnpm + catalogs, oxc, TS 7, React Compiler, knip + dependency-cruiser, bulletproof-react.

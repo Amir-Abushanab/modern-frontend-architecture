@@ -24,11 +24,12 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | No manual memoization | lint | `no-restricted-imports`: `useMemo`/`useCallback`/`memo` from `react` |
 | No `isPending` plumbing | lint (partial) | `no-restricted-imports`: `useQuery` → `useSuspenseQuery` / collections |
 | No raw layout elements | lint | `react/forbid-elements` (`div`, `section`, `span`…) with message → `Box`/`Row`/`Stack`; rule off inside `src/shared/ui/**` |
-| Token-only color | types + script | prop unions; `check-tokens` bans palette classes (`bg-teal-600`), `bg-white`/`text-black`, raw `#hex`/`rgb()`/`oklch()`, raw channel bytes (PDF/canvas) |
-| No arbitrary values (`[400px]`) | script | grep `className` for `[…]` |
-| Token-only type | script | grep components for raw `font-size`/`letter-spacing`/`line-height`/`font-family`; `em` allowlisted (context-relative: inline `code`, `sup`) |
+| Token-only color | types + lint + script | prop unions · `@shadcn/lint`: `no-raw-colors` (palette classes like `bg-teal-600`, undeclared tokens, SVG `fill`/`stroke`), `no-unknown-classes` (typos; `bg-white`/`text-black` once `--color-*: initial`), `require-static-classes` (`` `bg-${tone}` `` can't be checked) · `check-tokens`: raw `#hex`/`rgb()`/`oklch()` outside class and style sites, raw channel bytes (PDF/canvas) |
+| No arbitrary values (`[400px]`, inline `style`) | lint | `no-arbitrary-values` (names the on-scale class; off inside `src/shared/ui/**`) · `no-inline-styles` |
+| Restyle limits (linted shadcn) | lint | `no-restyle`: `allow: ["layout"]` + per-component `contracts` → `design-system.md` |
+| Token-only type | lint + script | `no-arbitrary-values` on type classes (`text-[13px]`, `leading-[1.1]`) · grep components for raw `font-size`/`letter-spacing`/`line-height`/`font-family`; `em` allowlisted (context-relative: inline `code`, `sup`) |
 | Font loading | review | self-hosted variable woff2 · `preload` above-the-fold faces · fallback metrics measured per pair, not generated |
-| Logical direction only | script | grep `pl-`/`ml-`/`text-left`/`left-0`/`margin-left`… (no oxlint Tailwind plugin) |
+| Logical direction only | script | grep `pl-`/`ml-`/`text-left`/`left-0`/`margin-left`… (`@shadcn/lint` has no direction rule) |
 | `unsafeClassName` bounded | ratchet | budget count |
 | Forms on-stack | lint | `no-restricted-imports`: `react-hook-form`, `formik` |
 | a11y | lint | `jsx-a11y` set |
@@ -42,7 +43,7 @@ Push each rule as high as it goes; promote when a mechanism appears.
 
 ## Ratchet
 
-Brownfield can't ban day 1. Instead: committed budgets `{ label, max, pattern, exempt, fix }` in a ~60-line no-dep script — fail when the count exceeds `max`, lower `max` when you convert (the failure prints the new number), never raise it. Greenfield: `max: 0` is a ban. Exempt `src/shared/ui/**` — raw elements inside a primitive are the point of the primitive. `fix` says what to write instead, so an agent hitting the gate self-corrects.
+Brownfield can't ban day 1. Instead: committed budgets `{ label, max, pattern, exempt, fix }` in a ~60-line no-dep script — fail when the count exceeds `max`, lower `max` when you convert (the failure prints the new number), never raise it. Greenfield: `max: 0` is a ban. Exempt `src/shared/ui/**` — raw elements inside a primitive are the point of the primitive. `fix` says what to write instead, so an agent hitting the gate self-corrects. A lint rule ratchets without the script: `warn` + `oxlint --max-warnings <count>`, same never-raise rule, `error` at zero.
 
 ## Wiring
 
