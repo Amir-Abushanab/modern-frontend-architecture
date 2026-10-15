@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: One-way live updates from a Durable Object should use hibernatable WebSockets, not SSE that keeps the object awake
 tags: [realtime, correctness]
 allowed_tools: [Read, Glob, Grep, Skill]

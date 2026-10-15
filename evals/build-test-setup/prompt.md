@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Build task: the test setup should fail on unhandled network requests, unprompted"
 tags: [build]
 max_turns: 40

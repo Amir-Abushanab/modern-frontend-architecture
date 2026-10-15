@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A new app keeping stock shadcn components should get @shadcn/lint with layout-only className contracts, not prose rules or a component rewrite
 tags: [defaults, design-system]
 allowed_tools: [Read, Glob, Grep, Skill]

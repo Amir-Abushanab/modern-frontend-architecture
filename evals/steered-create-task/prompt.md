@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Steered build task: demo pressure and an existing useEffect-fetch hook nudge away from collections and client-minted ids"
 tags: [build, steered]
 max_turns: 40

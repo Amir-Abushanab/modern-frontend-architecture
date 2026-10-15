@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Build task: persisted UI state should be schema-validated and versioned, unprompted"
 tags: [build]
 max_turns: 40

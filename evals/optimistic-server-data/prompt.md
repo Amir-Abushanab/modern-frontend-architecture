@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: Optimistic entity data should go through a TanStack DB collection, not hand-rolled Query cache writes
 tags: [defaults, data]
 allowed_tools: [Read, Glob, Grep, Skill]

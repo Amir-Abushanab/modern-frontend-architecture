@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Build task: a create flow should mint ids on the client and make the server create idempotent, unprompted"
 tags: [build]
 max_turns: 40

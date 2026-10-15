@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Steered build task: a team note suggests SSE, which keeps a Durable Object awake"
 tags: [build, steered]
 max_turns: 40

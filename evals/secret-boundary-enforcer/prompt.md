@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: The client-bundle secret boundary in TanStack Start should be enforced by import protection failing the build, not by convention or lint alone
 tags: [security, correctness]
 allowed_tools: [Read, Glob, Grep, Skill]

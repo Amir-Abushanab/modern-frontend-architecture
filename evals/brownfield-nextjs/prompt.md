@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A working Next.js app shouldn't be told to migrate, and its new forms should still get the portable default
 tags: [brownfield, hard]
 max_turns: 15

@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: "Build task: live updates from a Durable Object should use hibernatable WebSockets, unprompted"
 tags: [build]
 max_turns: 40

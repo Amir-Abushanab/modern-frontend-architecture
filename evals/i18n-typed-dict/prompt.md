@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A typed translation dictionary must type translations with string leaves (not the literal types of an `as const` English object) and load locales without casting
 tags: [i18n, correctness]
 allowed_tools: [Read, Glob, Grep, Skill]

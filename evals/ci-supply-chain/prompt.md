@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: CI and supply-chain hardening should carry the house cooldown plus the trust policy, a generated-files drift check, and SHA-pinned Actions
 tags: [factory, supply-chain]
 allowed_tools: [Read, Glob, Grep, Skill]

@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: Type-level contracts (token-only props, translation key parity) should be guarded by type tests compiled in CI
 tags: [factory, types]
 allowed_tools: [Read, Glob, Grep, Skill]

@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A new-app form-library question should pick TanStack Form + zod
 tags: [defaults, forms]
 allowed_tools: [Read, Glob, Grep, Skill]

@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: Adopting a strict lint set on an existing codebase should ratchet per file (or file × rule), not by one repo-wide warning count
 tags: [factory, brownfield]
 allowed_tools: [Read, Glob, Grep, Skill]
