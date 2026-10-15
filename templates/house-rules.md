@@ -1,7 +1,5 @@
----
-description: Frontend house rules. Always on, because skills load on demand and agents drop these mid-task.
-paths: ["**/*.{ts,tsx,css}", "package.json", "pnpm-workspace.yaml", ".github/**"]
----
+<!-- Always on: install without `paths:` frontmatter. Approaches get chosen while reading a spec or planning,
+     before any matching file is touched, so a path-scoped rule loads too late. -->
 
 # Frontend house rules
 
