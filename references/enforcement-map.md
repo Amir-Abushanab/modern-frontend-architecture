@@ -18,9 +18,11 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | Default | Tier | Mechanism |
 |---|---|---|
 | pnpm / configured Bun | config + script | `packageManager` field · `preinstall` guard (`only-allow pnpm`) |
-| Dep cooldown | config | `minimumReleaseAge` · CI `--frozen-lockfile` · `allowBuilds` |
+| Dep cooldown | config | `minimumReleaseAge` · `trustPolicy: no-downgrade` · CI `--frozen-lockfile` · `allowBuilds` · Actions pinned by SHA (GitHub policy) |
 | TS strict | types | tsconfig flags; `tsc --noEmit` in the gate |
+| Type-tier rules don't loosen | types + test | `*.test-d.ts` inside each tsconfig `include`, so the gate's `tsc` compiles them: exact `expectTypeOf<BoxProps['gap']>().toEqualTypeOf<Space \| undefined>()` (catches `\| (string & {})`), negative `assertType` under `@ts-expect-error` (an unused directive is TS2578). A loosened type passes every correct caller; only these notice. Use `assertType`, not an unused `const` — with `noUnusedLocals` the unused-variable error would satisfy the directive forever |
 | No hand-typed wire types | types | client types inferred from the router — a copy has nowhere to live |
+| Generated files current | script | committed; CI builds (codegen reruns) and fails on a dirty `git status --porcelain` |
 | No manual memoization | lint | `no-restricted-imports`: `useMemo`/`useCallback`/`memo` from `react` |
 | No `isPending` plumbing | lint (partial) | `no-restricted-imports`: `useQuery` → `useSuspenseQuery` / collections |
 | No raw layout elements | lint | `react/forbid-elements` (`div`, `section`, `span`…) with message → `Box`/`Row`/`Stack`; rule off inside `src/shared/ui/**` |
@@ -33,9 +35,10 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | `unsafeClassName` bounded | ratchet | budget count |
 | Forms on-stack | lint | `no-restricted-imports`: `react-hook-form`, `formik` |
 | a11y | lint | `jsx-a11y` set |
+| Secrets stay server-side | boundaries | Start import protection fails `vite build`: `*.server.*` files, the `server-only` marker, `importProtection.client.specifiers` (`cloudflare:workers`). Dev only warns → the CI build is the gate |
 | Security set | lint + script | `react/no-danger` · `jsx-no-script-url` · `no-restricted-properties` on `process.env` · CI grep for `import.meta.env` → `security.md` |
 | Structure | boundaries | knip · depcruise (`app → features → components/lib`) |
-| i18n key parity | types | `export const ar: Dict` |
+| i18n key parity | types | `export const ar: Dict`, with `Dict = Widen<typeof en>` (bare `typeof en` of an `as const` object rejects every translation) |
 | Wide-event logging | lint (partial) | `no-console` error in `server/**`, allowed only in the logger module; one-event-per-request stays review |
 | Hooks ↔ CI no drift | construction | both run the same `pnpm check` |
 | Loader/component single query def | construction | collection / route `context()` → `data-and-typesafety.md` |
@@ -43,7 +46,9 @@ Push each rule as high as it goes; promote when a mechanism appears.
 
 ## Ratchet
 
-Brownfield can't ban day 1. Instead: committed budgets `{ label, max, pattern, exempt, fix }` in a ~60-line no-dep script — fail when the count exceeds `max`, lower `max` when you convert (the failure prints the new number), never raise it. Greenfield: `max: 0` is a ban. Exempt `src/shared/ui/**` — raw elements inside a primitive are the point of the primitive. `fix` says what to write instead, so an agent hitting the gate self-corrects. A lint rule ratchets without the script: `warn` + `oxlint --max-warnings <count>`, same never-raise rule, `error` at zero.
+Brownfield can't ban day 1. Instead: committed budgets `{ label, max, pattern, exempt, fix }` in a ~60-line no-dep script — fail when the count exceeds `max`, lower `max` when you convert (the failure prints the new number), never raise it. Greenfield: `max: 0` is a ban. Exempt `src/shared/ui/**` — raw elements inside a primitive are the point of the primitive. `fix` says what to write instead, so an agent hitting the gate self-corrects. An `exempt` entry that matches nothing fails the gate, so allowlists shrink with the code.
+
+**Lint rules ratchet per file × rule, not by one global count.** Commit a baseline `{ "path::rule": count }` built from `oxlint --format=json`: a new file has budget 0, no count may rise, and a fix that lowers one must update the baseline (a stale entry fails too), so the total only falls. Rules run at `error`; the baseline is the only exemption. A single `oxlint --max-warnings <count>` lets a fix in one file pay for a new violation in another.
 
 ## Wiring
 

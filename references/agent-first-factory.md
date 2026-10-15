@@ -12,7 +12,7 @@
 ```
 oxlint            # lint (errors only)
 oxfmt --check     # format
-tsc --noEmit      # TS 7 types
+tsc --noEmit      # TS 7 types + *.test-d.ts type tests (enforcement-map.md)
 knip              # unused files, deps, exports
 depcruise         # import-boundary rules
 check-tokens …    # rule-scripts + ratchets — what lint can't see (enforcement-map.md)
@@ -25,7 +25,7 @@ Run it by **cost**, not all-at-once:
 |---|---|---|
 | **pre-commit** | `oxlint --fix` + `oxfmt` on **staged files**, then re-stage | fast — keeps commits painless; no types/tests/knip here |
 | **pre-push** | full `pnpm check` | the heavy checks (types, knip, boundaries, tests) before code leaves your machine |
-| **CI** | full `pnpm check` | **authoritative** — hooks are bypassable (`--no-verify`), CI is not |
+| **CI** | full `pnpm check`, then the production build, then `git status --porcelain` must be empty | **authoritative** — hooks are bypassable (`--no-verify`), CI is not. The build is where Start's import protection fails (dev only warns) and codegen reruns (`routeTree.gen.ts`, generated clients); a dirty tree means a generated file wasn't committed |
 
 CI is the source of truth; the hooks are just its fast local mirror.
 
@@ -48,6 +48,10 @@ Two cooldown layers — don't run code a stranger published an hour ago — and 
 **Which layer does the work:** ncu is proposal-time — skippable, overridable, and it only decides what to *suggest*. `minimumReleaseAge` is the wall: enforced on every install, transitively, in CI. The `.ncurc.json` upgrade just hardens the advisory half; your actual solidity comes from the pnpm layer.
 
 Already supply-chain controls elsewhere in the stack, named here so they aren't forgotten: the **`allowBuilds` allow-list** (pnpm blocks arbitrary install/postinstall scripts by default — opt in per package), a **frozen lockfile in CI** (`--frozen-lockfile`, for byte-identical, tamper-evident installs), and **`pnpm audit`** as a gate signal.
+
+- **Trust, beyond age — `trustPolicy: no-downgrade`** (off by default). The install fails when a version carries weaker publish evidence than earlier releases — e.g. no provenance from a package that had it, the hijacked-token pattern. pnpm 11 already turns on `strictDepBuilds` (unreviewed build scripts fail the install) and `blockExoticSubdeps` (no git/tarball transitive deps); keep both on. Never set `trustPolicyIgnoreAfter` ≤ the cooldown: every version old enough to install would skip the check.
+- **Exceptions name exact versions with a reason** (`minimumReleaseAgeExclude`, `trustPolicyExclude`, `allowBuilds`), never a bare package name — a whole-package exemption silently covers next week's compromised release too.
+- **CI's own dependencies:** pin third-party Actions to full commit SHAs (tag in a comment), enforced by GitHub's "require actions to be pinned to a full-length commit SHA" policy; Dependabot on `github-actions` with `cooldown: { default-days: 7 }` keeps the pins moving under the same cooldown.
 
 *(Runtime security — CSP, headers, the secret boundary, CSRF, XSS sinks — now lives in `references/security.md`; its lint set (`react/no-danger`, `react/jsx-no-script-url`, `eslint/no-script-url`, `no-restricted-properties`) runs in this gate. Supply-chain stays here.)*
 

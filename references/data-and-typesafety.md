@@ -59,10 +59,10 @@ Pick the blessed transport day 1; the tool follows deploy:
 
 | Deploy | Transport |
 |---|---|
-| Cloudflare | **Durable Object** (one per room/topic) + WebSocket |
+| Cloudflare | **Durable Object** (one per room/topic) + hibernatable WebSocket (`ctx.acceptWebSocket`) |
 | Self-host | **ws** + **Redis** pub/sub (fan-out across instances) |
 
-Shared, typed JSON envelope (discriminated union) client↔server. Route realtime deltas **into the collection** (the sync seam) rather than hand-writing the cache. Use **SSE** (not WS) when it's predominantly server→client and you're on HTTP/2. Never run sockets on serverless functions.
+Shared, typed JSON envelope (discriminated union) client↔server. Route realtime deltas **into the collection** (the sync seam) rather than hand-writing the cache. Off Cloudflare, use **SSE** (not WS) when it's predominantly server→client and you're on HTTP/2. **On a Durable Object, use hibernatable WebSockets even for one-way traffic:** only a WebSocket server lets the object hibernate, so an open SSE response keeps it awake — and billed — for every idle tab. Never run sockets on serverless functions.
 
 ## Sync / offline
 

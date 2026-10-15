@@ -41,7 +41,7 @@ Handlers add business context as it becomes known — `context.event.user = { id
 
 - **Levels stop mattering.** The one event ships at info; `outcome` / `status_code` / `error.*` are the query dimensions, not severity strings.
 - **Correlate, don't centralize:** stamp `request_id` (and `trace_id` if tracing) on the event in *every* service it crosses — Worker → Durable Object → queue consumer — so one ID joins them.
-- **PII / secrets:** IDs over emails; never log tokens, passwords, or raw request bodies (same boundary discipline as `security.md`).
+- **PII / secrets:** IDs over emails; never log tokens, passwords, or raw request bodies (same boundary discipline as `security.md`). Make it mechanical: the event's shape is a zod schema parsed once at emit, so unknown keys strip and a stray `event.user = userRow` can't ship the email. A canary test drives real flows (a failing mutation, a DB constraint error) with fake PII and secrets in body, headers, cookies and query, captures *all* console output — dependencies' included — and asserts none appears. On Workers, turn off the automatic invocation log (`"observability": { "logs": { "invocation_logs": false } }`): it's a second, unschematized line per request carrying the full URL.
 - **Sampling (when volume costs):** tail-sample — always keep errors, slow requests (> p99), and flagged/VIP cohorts; random-sample the happy path. Never head-sample errors away.
 - **OpenTelemetry is a delivery mechanism,** not a policy — it moves events, it doesn't decide what to capture. The wide event is the policy; OTel/Workers Logs/Logpush are transports.
 
