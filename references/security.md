@@ -45,6 +45,7 @@ SSR co-locates server + client code, so a mis-scoped secret ships to every brows
 - **On Cloudflare, secrets are Worker bindings** — `import { env } from "cloudflare:workers"`, outside `import.meta.env` entirely. Store with `wrangler secret put` / a gitignored `.dev.vars`; **never** `[vars]` in `wrangler.jsonc` (plaintext, committed).
 - **One typed env module per side:** zod `serverEnv` in `src/config/env.server.ts`, `clientEnv` (`VITE_`) in `src/config/env.ts` — single read site each; the `.server` name is what puts `serverEnv` behind import protection (below). Extends the typed-env rule in `stack-selection.md`.
 - **The import graph is the real guarantee, not lint — and Start enforces it.** Import protection (on by default) fails `vite build` when a `*.server.*` file, a module marked `import '@tanstack/react-start/server-only'`, or a denied specifier is still in the client graph after the compiler strips server-fn bodies. Name the env module `env.server.ts` and deny the binding module too: `tanstackStart({ importProtection: { client: { specifiers: ['cloudflare:workers'] } } })`. Dev only mocks and warns, so **the CI build is the gate** (`agent-first-factory.md`). A lint rule can't stop bundling; it's a tripwire for earlier, clearer errors: ban `process.env` outside the env module (oxlint `no-restricted-properties`). Banning **`import.meta.env`** needs `no-restricted-syntax`, which **oxlint lacks** (`import.meta` is a `MetaProperty`) — use an oxlint JS-plugin, a one-rule ESLint sidecar, or a CI grep. Allowlist `import.meta.env.DEV/PROD/MODE/SSR/BASE_URL`.
+- **Not on Start** (a plain Vite SPA, a Worker, a package with a browser entry): there's no import protection, so a test bundles each client entry with a metafile and fails if the server env module, `node:*`, or a denied package is among its inputs.
 - Gitignore `.env*.local`; keep Vite patched (CVE-2025-31125, dev `server.fs.deny` bypass).
 
 ## 3. Cookies · CSRF · CORS · redirects
@@ -67,6 +68,16 @@ React escapes `{interpolation}`; the holes are the sinks. Make them un-expressib
 
 > **oxlint note:** every rule here except `react/no-danger` is **default-off** — enable them explicitly. This security lint set runs in the gate (`agent-first-factory.md`).
 
-## Skip — a competent agent already gets these right (documenting them is bloat)
+## 5. Local and sidecar servers
+
+Dev servers, desktop sidecars, local agents and preview tools listen on loopback. Any web page the user visits can try to reach them, through DNS rebinding or a plain `fetch` to `localhost`.
+
+- **A per-install random secret, even on loopback.** The server refuses to start without one, so "unauthenticated" can't happen by forgetting a flag. Bind to `127.0.0.1` unless a LAN mode is explicitly on.
+- **A Host allowlist** (DNS rebinding) and **an Origin allowlist** on every request. A control plane meant for local tools rejects any WebSocket upgrade that carries an `Origin` header at all: browsers always send one, CLIs don't.
+- **WebSocket auth by ticket:** single-use, expiring within a minute, minted by a request with a custom header (which forces a CORS preflight). Never put the long-lived secret in the URL.
+- **Desktop:** the credential stays in the main process, which adds it to the renderer's requests. The page never holds it, so XSS in the page can't steal it.
+- **Vite:** never `server.allowedHosts: true`. Vite's docs say it lets any website reach the dev server through DNS rebinding. Keep `server.host` on localhost unless you need LAN access, and then use an explicit host list.
+
+## Skip — designed out by the stack
 
 Normal `{…}` output encoding (React auto-escapes) · SQLi (Drizzle + zod-validated oRPC inputs design it out) · password hashing / session-token crypto (Better Auth owns it) · generic "validate input" (the oRPC + zod wire schema *is* the enforced control) · rate-limiting / brute-force (Better Auth built-ins + Cloudflare platform).

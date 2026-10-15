@@ -1,6 +1,6 @@
 ---
 name: modern-frontend-architecture
-description: House standard for web frontends. Use it before answering any web-frontend question that involves choosing an approach or a tool: framework and stack, data fetching, caching and optimistic updates, client state, routing and URL state, forms, styling and design systems, typed translations and RTL, live updates and realtime transport (WebSocket, SSE, Durable Objects), CSP, keeping secrets and server-only code out of the client bundle, server logging, lint rollouts, type-level contracts in CI, CI and dependency hardening, and deploy (Cloudflare, self-host, Vercel). Covers new apps and existing ones: scaffolding, extending, migrating, reviewing. Not for one-off CSS or browser-API bugs.
+description: House standard for web frontends. Use it before answering a question or writing code that involves choosing an approach or a tool: framework and stack, data fetching, caching and optimistic updates, creating records, client state and anything persisted in the browser, routing and URL state, forms, styling and design systems, typed translations and RTL, live updates and realtime transport (WebSocket, SSE, Durable Objects), CSP, keeping secrets and server-only code out of the client bundle, server logging, test setup, lint rollouts, type-level contracts in CI, CI and dependency hardening, and deploy (Cloudflare, self-host, Vercel). Covers new apps and existing ones: scaffolding, building features, extending, migrating, reviewing. Not for one-off CSS or browser-API bugs.
 ---
 
 # Modern Frontend Architecture
@@ -12,6 +12,8 @@ House standard for web frontends. Take the `Use` default; open the reference for
 **Current best, not eternal truth — last reviewed 2026-10-14.** The *boundaries* (the decisions and seams) below are durable; the *named tools and versions* filling them are the current best as of that review. If today's date is well past it, treat specific tool/version picks as possibly superseded — keep the decision, re-verify what best fills it now. This is the guiding rule applied to the skill itself: the seam is the commitment, the tool is the implementation.
 
 **Defer, don't duplicate:** platform HTML/CSS/JS → `modern-web-guidance` · composition → `vercel-composition-patterns` · React perf → `vercel-react-best-practices` · motion → `web-animation-design`. The two `vercel-*` are companion skills — install them alongside this one (see README); if a target project doesn't have them, fall back to `modern-web-guidance` + first principles, don't inline their depth here.
+
+**Always-on layer:** a skill loads only when the agent thinks to load it, and long build tasks often don't. A project that adopts this standard also installs `templates/house-rules.md` as an always-on rule (`.claude/rules/`, AGENTS.md; see `agent-first-factory.md`): the defaults agents drop mid-task, plus "load this skill before choosing an approach".
 
 **Reference implementation:** `ultimate-ts-starter` (`github.com/Amir-Abushanab/ultimate-ts-starter`) — copy patterns from it.
 
@@ -25,21 +27,22 @@ House standard for web frontends. Take the `Use` default; open the reference for
 | Lint / format | oxc (oxlint + oxfmt), error-only | ESLint+Prettier · Biome | Rust-fast *and* skips the TS compiler API, so TS 7 works today |
 | Types | TS 7 native `tsc`, strict + `noUncheckedIndexedAccess` | TS 6 · loose | |
 | Wire types | oRPC + zod · simple Hono-server projects: Hono RPC (`hc<AppType>`) | tRPC · hand-typed | OpenAPI-compatible, edge-agnostic; Hono RPC = same seam, no extra layer — graduate to oRPC at OpenAPI / non-TS consumers |
-| Server data | oRPC → TanStack Query → TanStack DB collection (`useLiveQuery`, optimistic) | raw Query for entity data · hand-rolled cache writes | collection gives optimistic+rollback and the sync seam free — deletes ~80 lines |
-| Loading / error | Suspense + ErrorBoundary | `isPending` / `isError` plumbing | |
+| Server data | oRPC → TanStack Query → TanStack DB collection (`useLiveQuery`, optimistic) · creates: client-minted UUIDv7 keys, idempotent by id | raw Query for entity data · hand-rolled cache writes · server-minted ids with temp-id swaps | collection gives optimistic+rollback and the sync seam free — deletes ~80 lines |
+| Loading / error | Suspense + ErrorBoundary · suspend on first load only | `isPending` / `isError` plumbing · a refetch that blanks a painted screen | |
 | Memoization | React Compiler via oxc — `react({ compiler: true })` + `oxc-transform-react` | manual `useMemo` / `useCallback` · `babel-plugin-react-compiler` (fallback only) | one Rust pass (compiler + JSX + Fast Refresh), ~10× faster, toolchain stays Babel-free |
-| Client state | collection → zustand / xstate-store → XState | Context/`useEffect` webs · a hand-rolled FSM that keeps growing | small flat FSM is fine; hierarchy/parallelism/coordinating actors = reach for XState |
+| Client state | collection → zustand / xstate-store → XState · persisted state through one schema-validated `persisted()` helper | Context/`useEffect` webs · a hand-rolled FSM that keeps growing · raw `localStorage` reads | small flat FSM is fine; hierarchy/parallelism/coordinating actors = reach for XState |
 | URL state | typed search params (TanStack Router + zod) · loaders · overlays-as-routes (drawers, modals) | untyped `useSearchParams` | |
-| Realtime | day-1 transport by deploy: CF → Durable Objects + hibernatable WebSockets (even one-way) · self-host → ws + Redis | ad-hoc socket per feature · sockets on serverless · SSE from a Durable Object | only a WebSocket server lets a DO hibernate; an open SSE response keeps it awake and billed |
+| Realtime | day-1 transport by deploy: CF → Durable Objects + hibernatable WebSockets (even one-way) · self-host → ws + Redis · snapshot then deltas on one connection, versioned first frame | ad-hoc socket per feature · sockets on serverless · SSE from a Durable Object | only a WebSocket server lets a DO hibernate; an open SSE response keeps it awake and billed |
 | Forms | TanStack Form + zod (reuse the wire schema) → submit via the collection / oRPC mutation | react-hook-form · Formik · bare `FormData` for anything nontrivial | headless + typed; the zod input schema is shared with oRPC, so validation and wire types can't drift |
 | Design system | typed house primitives (default): Base UI via shadcn copy-paste, token-only props, no `className` · linted shadcn, new or existing app: stock components + `@shadcn/lint` (`className` on components limited to layout classes; palette colors and arbitrary values rejected) | plain shadcn (open `className`, no lint) | same contract either way: callers place, components own appearance. Rewriting component APIs anyway → typed; keeping shadcn's → linted. Typed: layout via token-only `Box`/`Row`/`Stack`, variance via props, rows via `ButtonList` |
 | Styling | semantic tokens only · logical direction (`ps-*`/`ms-*`/`text-start`/`start-0`) | arbitrary px/hex · palette primitives (`blue-500`) in components · physical `pl-*`/`ml-*`/`text-left`/`left-0` | palette lives in the theme file only; logical-by-default makes RTL a `dir` flip, not a migration |
 | Typography | role-named type scale as tokens (`--text-*`) · tracking + leading tokens · self-hosted variable woff2 + `preload` + measured metric-matched fallback | raw `font-size`/`letter-spacing`/`line-height` in components · Google Fonts · `font-size-adjust: from-font` · guessed fallback metrics | type drift is invisible in review, so untokenized sizes become a continuum instead of a scale; fallback metrics decide line breaks, so they get measured |
-| Structure | bulletproof-react, enforced by knip + dependency-cruiser | unenforced folders | gates are not optional |
+| Structure | bulletproof-react, enforced by knip + dependency-cruiser · one owner module per capability (fetch client, db, storage) | unenforced folders | gates are not optional |
+| Tests | Vitest + Testing Library + MSW · Playwright · hermetic: the Vitest setup file makes any unmocked request fail (MSW `onUnhandledFrame: 'error'`, or a global `fetch` stub that throws), no real secrets, cassettes for third-party APIs · type tests for type-level rules | tests that reach the network or read your env | a test that passes on your machine and fails in CI, or calls a live API, isn't a gate |
 | Git hooks & checks | one `pnpm check` (+ `pnpm fix`); `.githooks` simple · lefthook complex; pre-commit autofix on staged · pre-push + CI full gate · CI then builds and fails on a dirty tree · lint debt ratchets per file × rule | husky · everything in pre-commit · hook↔CI drift · one global `--max-warnings` | one script = source of truth, CI authoritative (hooks bypassable); the build is where import protection and codegen run; lefthook is parallel + one YAML |
 | Dep updates | pnpm `minimumReleaseAge: 10080` (7d, the enforced gate) + `trustPolicy: no-downgrade` + ncu cooldown in `.ncurc.json` · Actions pinned by commit SHA | bare `--cooldown` flag · adopting versions published hours ago · whole-package exemptions | `minimumReleaseAge` enforces on every install incl. transitive; ncu is advisory (config covers bare `ncu` too) |
 | Security · headers/CSP | nonce CSP (TanStack `ssr.nonce`, ≥1.133.12) + header bundle in one Worker middleware | `unsafe-inline` · no CSP · `COOP: same-origin` · HSTS `preload` on day 1 | day-1 boundary, painful to retrofit; framework ships nonce support |
-| Security · app | secrets server-only (never module-scope / `VITE_`), enforced by Start's import protection failing the build · Origin-check non-GET oRPC mutations · sanitize HTML Worker-safe (not DOMPurify) · ban `dangerouslySetInnerHTML` | trusting Better Auth's CSRF for the oRPC API · DOMPurify in a Worker · secrets at module scope | Better Auth guards only its own routes; React escaping misses the sinks |
+| Security · app | secrets server-only (never module-scope / `VITE_`), enforced by Start's import protection failing the build · Origin-check non-GET oRPC mutations · sanitize HTML Worker-safe (not DOMPurify) · ban `dangerouslySetInnerHTML` · local servers: per-install secret, Host + Origin allowlists | trusting Better Auth's CSRF for the oRPC API · DOMPurify in a Worker · secrets at module scope | Better Auth guards only its own routes; React escaping misses the sinks |
 | Logging (server fns / API routes) | one **wide event** per request — structured canonical log line, built in middleware, emitted once | scattered `console.log` breadcrumbs · one line per step · unstructured strings | queryable high-cardinality record; breadcrumbs can't answer questions you didn't pre-write |
 | Client telemetry (not day-1 — add when needed) | typed `track()` → batched `fetch` keepalive → first-party Worker ingest → same sinks as server logging | OTel browser SDK day 1 · vendor RUM snippet · `sendBeacon` | server logging first; when real-user perf/error questions land, this shape is cheap to add late |
 | i18n / RTL | typed dict (`as const` + `Paths<T>`) + `Intl.*` · lazy `import()` · RTL via `dir` + logical properties | i18next · Lingui | key-safety + autocomplete, zero build step; Paraglide only if per-message tree-shaking matters |
@@ -48,15 +51,15 @@ House standard for web frontends. Take the `Use` default; open the reference for
 
 | For… | Read |
 |---|---|
-| stack · deploy · toolchain · repo skeleton | `references/stack-selection.md` |
-| data · URL state · realtime | `references/data-and-typesafety.md` |
-| where state lives | `references/state.md` |
+| stack · deploy · toolchain · repo skeleton · hermetic tests | `references/stack-selection.md` |
+| data · creates and ids · URL state · realtime delivery | `references/data-and-typesafety.md` |
+| where state lives · persisted state · effects | `references/state.md` |
 | components · design system | `references/design-system.md` |
 | type scale · tracking/leading · font loading · fallback metrics | `references/typography.md` |
 | internationalization | `references/i18n-rtl.md` |
 | CI gates · git hooks · supply-chain · enforcement · the factory | `references/agent-first-factory.md` |
 | rule → enforcer map · ratchets | `references/enforcement-map.md` |
-| runtime security · CSP · headers · secrets · CSRF · XSS | `references/security.md` |
+| runtime security · CSP · headers · secrets · CSRF · XSS · local servers | `references/security.md` |
 | server-side logging · wide events · client telemetry · sampling | `references/logging.md` |
 
 ## Brownfield & hard constraints

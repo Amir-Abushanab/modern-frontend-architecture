@@ -38,6 +38,13 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | Secrets stay server-side | boundaries | Start import protection fails `vite build`: `*.server.*` files, the `server-only` marker, `importProtection.client.specifiers` (`cloudflare:workers`). Dev only warns → the CI build is the gate |
 | Security set | lint + script | `react/no-danger` · `jsx-no-script-url` · `no-restricted-properties` on `process.env` · CI grep for `import.meta.env` → `security.md` |
 | Structure | boundaries | knip · depcruise (`app → features → components/lib`) |
+| One owner per capability | boundaries | depcruise `forbidden`: only `src/lib/http` imports the fetch client, only `src/lib/db` the driver; the exempt list is the ratchet |
+| No effect webs | lint (partial) | `no-restricted-imports` on `useEffect`/`useLayoutEffect` in `src/features/**`, with a message that names collections, `useSuspenseQuery`, event handlers and `useSyncExternalStore`; a disable comment must give the reason |
+| Persisted state through the helper | lint | `no-restricted-globals` + `no-restricted-properties` on `localStorage`/`sessionStorage`, off inside `src/lib/persisted*` |
+| Hermetic tests | config | Vitest setup: MSW unhandled strategy `'error'`; test script sets `TZ=UTC` and scrubs secret env |
+| Docs agents copy | script | `<!-- source: path#symbol -->` code blocks diffed against the source in `pnpm check` |
+| Gates reachable | script | `check-gates`: every lint config, rule pack, package test script, cooldown exemption and patch is reachable from `pnpm check`/CI and matches the lockfile |
+| Local/sidecar servers locked down | review | per-install secret, Host + Origin allowlists, WebSocket tickets → `security.md` §5 |
 | i18n key parity | types | `export const ar: Dict`, with `Dict = Widen<typeof en>` (bare `typeof en` of an `as const` object rejects every translation) |
 | Wide-event logging | lint (partial) | `no-console` error in `server/**`, allowed only in the logger module; one-event-per-request stays review |
 | Hooks ↔ CI no drift | construction | both run the same `pnpm check` |

@@ -42,6 +42,12 @@ bulletproof-react: `src/app` (routes) · `src/features/<feature>/{components,api
 
 Typed env (zod-validated, single read site — client-bundle secret boundary in `security.md`) · Better Auth · Vitest + Testing Library + MSW · Playwright e2e · git hooks running the gate · CSP + security headers day 1 (`security.md`).
 
+**Tests are hermetic from day 1.** A test's result depends only on the code and the test itself.
+- **No real network:** the Vitest setup refuses any request that isn't loopback. Set MSW's unhandled strategy to `'error'` (`onUnhandledFrame` in current MSW, `onUnhandledRequest` in older versions).
+- **No ambient state:** tests run with `TZ=UTC`, a fresh `HOME`, and no real secrets in env.
+- **Third-party APIs** (payments, email, LLMs) replay recorded cassettes. The recorder scans each one for keys and tokens and refuses to write it if it finds any.
+- **A seam with two implementations** (memory and SQLite storage, a Query and an Electric collection, ws and a Durable Object) gets one shared conformance suite that both run. Write it then, not before.
+
 ## Already on another stack? (brownfield)
 
 The deploy cascade and framework picks are *day-1* calls. When you inherit a codebase, the seam matters more than the label — see the "Brownfield & hard constraints" note in `SKILL.md` for the general rule; specifics:
