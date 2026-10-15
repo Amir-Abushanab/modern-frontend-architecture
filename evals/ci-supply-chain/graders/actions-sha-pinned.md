@@ -2,5 +2,5 @@
 type: llm
 ---
 
-PASS if third-party GitHub Actions are pinned to full-length commit SHAs (not just version tags).
-FAIL if actions are referenced only by tag or branch, or pinning isn't addressed.
+PASS if the answer tells the user to pin third-party GitHub Actions to full commit SHAs, or to enforce SHA pinning with GitHub's policy. Placeholder SHAs such as `@<sha>` with the version tag in a comment count as pinning.
+FAIL if actions are referenced by version tag or branch with no instruction to pin them by SHA, or if pinning isn't addressed at all.
