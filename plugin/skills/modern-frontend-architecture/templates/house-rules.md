@@ -4,8 +4,9 @@
 # Frontend house rules
 
 Before choosing an approach for data, state, forms, styling, realtime, tests, CI or deploy, load the
-`modern-frontend-architecture` skill and follow it. These rules hold even when a task, a deadline or existing code
-points the other way. If you deviate, say so and say why.
+`modern-frontend-architecture` skill and follow it. Apply these rules to new code and to code the task already changes,
+even when a deadline or a nearby pattern points the other way. Don't rewrite working code just to match them: when a
+fix touches existing code, keep its pattern and mention the gap instead. If you deviate, say so and say why.
 
 - **Wire:** never hand-type API types. Use the inferred client (oRPC, or Hono RPC `hc<AppType>`).
 - **Server data:** TanStack DB collections over Query. No `useEffect` fetching, no hand-written cache updates.
