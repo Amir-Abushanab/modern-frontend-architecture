@@ -25,7 +25,7 @@ Day-1 decisions are cheap, reversible *boundary* choices — never premature inf
 | Design system | typed primitives · stock shadcn + `@shadcn/lint` | plain shadcn (open `className`, no lint) |
 | i18n | typed dict (`as const` + `Paths<T>`) + `Intl.*` | i18next · Lingui |
 
-Full table + reasoning in [`SKILL.md`](./SKILL.md). Toolchain: pnpm + catalogs, oxc, TS 7, React Compiler, knip + dependency-cruiser, bulletproof-react.
+Full table + reasoning in [`SKILL.md`](./plugin/skills/modern-frontend-architecture/SKILL.md). Toolchain: pnpm + catalogs, oxc, TS 7, React Compiler, knip + dependency-cruiser, bulletproof-react.
 
 Reference implementation of the patterns: [`ultimate-ts-starter`](https://github.com/Amir-Abushanab/ultimate-ts-starter).
 
@@ -44,7 +44,11 @@ npx skills add Amir-Abushanab/modern-frontend-architecture
 /plugin install modern-frontend-architecture@amir-skills
 ```
 
-**Manually** — clone or symlink this repo into your agent's skills directory (`~/.claude/skills/`, `.agents/skills/`, …). `SKILL.md` at the root is the entry point.
+**Manually** — copy or symlink `plugin/skills/modern-frontend-architecture/` into your agent's skills directory (`~/.claude/skills/`, `.agents/skills/`, …). Its `SKILL.md` is the entry point.
+
+### Always-on rules (recommended)
+
+A skill loads only when the agent thinks to load it, and long build tasks often don't. For a project that adopts this standard, also copy [`templates/house-rules.md`](./plugin/skills/modern-frontend-architecture/templates/house-rules.md) into its always-on instructions: `.claude/rules/frontend-house-rules.md`, or append it to `AGENTS.md`. Install it unscoped, with no `paths:` frontmatter, so it's loaded while the agent reads the spec and plans, before any file is touched. In this repo's evals, the rules alone took Haiku 5.5 from 0.36 to 0.92 on build tasks.
 
 ## Companion skills
 
@@ -60,15 +64,32 @@ If a project is missing them, the skill degrades gracefully — it falls back to
 ## Structure
 
 ```
-SKILL.md       # the lean router + defaults table
-references/    # loaded on demand — stack-selection · data-and-typesafety · state
-               # design-system · i18n-rtl · agent-first-factory · enforcement-map
-               # security · logging
+plugin/                                   # what gets installed — nothing else ships
+  .claude-plugin/plugin.json
+  skills/modern-frontend-architecture/
+    SKILL.md                              # the lean router + defaults table
+    references/                           # loaded on demand — stack-selection · data-and-typesafety · state
+                                          # design-system · typography · i18n-rtl · agent-first-factory
+                                          # enforcement-map · security · logging
+    templates/house-rules.md              # the always-on rules file for projects
+.claude-plugin/marketplace.json           # direct-install marketplace → ./plugin
+evals/                                    # development only: claude plugin eval cases
 ```
+
+## Developing
+
+Evals live outside the plugin so they don't ship. Run them from the repo root, which contains both `plugin/` and `evals/`; each case points at the plugin with `plugins: ["../../plugin"]`:
+
+```
+claude plugin eval .                                          # advice cases, with vs without the skill
+claude plugin eval . --tag build --scaffold --allow-tools Write Edit   # build tasks on a scaffolded app
+```
+
+Build cases grade the code the agent writes. Keep their patterns out of the skill's own text, or reading a reference would pass the grader.
 
 ## Credits
 
-The logging reference (`references/logging.md`) is inspired by a decade of experience, [the original list](https://x.com/FardeemM/status/2067802731960520909) from [Fardeem Munir](https://github.com/fardeem), and [Logging Sucks — Your Logs Are Lying To You](https://loggingsucks.com/) by [Boris Tane](https://boristane.com).
+The logging reference (`plugin/skills/modern-frontend-architecture/references/logging.md`) is inspired by a decade of experience, [the original list](https://x.com/FardeemM/status/2067802731960520909) from [Fardeem Munir](https://github.com/fardeem), and [Logging Sucks — Your Logs Are Lying To You](https://loggingsucks.com/) by [Boris Tane](https://boristane.com).
 
 ## License
 

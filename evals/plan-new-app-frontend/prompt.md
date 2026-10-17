@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A multi-decision stack plan should apply several defaults together (TanStack Start, TanStack DB, TanStack Form, Durable Objects on Cloudflare, oxc)
 tags: [defaults, hard]
 max_turns: 15

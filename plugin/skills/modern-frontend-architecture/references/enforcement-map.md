@@ -1,0 +1,62 @@
+# Enforcement Map
+
+Every default in `SKILL.md` maps to the mechanism that makes violating it fail (the Polar pattern: rules as lint in CI, not English — polar.sh/blog/orbit-llm-safe-design-system). No enforcer = aspiration. The table says which is which.
+
+## Tiers, strongest first
+
+1. **types** — wrong state unrepresentable
+2. **lint** — oxlint, error-only
+3. **boundaries** — knip, dependency-cruiser
+4. **config** — binds every install (`minimumReleaseAge`, frozen lockfile)
+5. **script** — greppable but not lintable: `scripts/check-*.ts` in `pnpm check`; brownfield version is a **ratchet** (below)
+6. **review** — no mechanism yet; listed, not hidden
+
+Push each rule as high as it goes; promote when a mechanism appears.
+
+## Map
+
+| Default | Tier | Mechanism |
+|---|---|---|
+| pnpm / configured Bun | config + script | `packageManager` field · `preinstall` guard (`only-allow pnpm`) |
+| Dep cooldown | config | `minimumReleaseAge` · `trustPolicy: no-downgrade` · CI `--frozen-lockfile` · `allowBuilds` · Actions pinned by SHA (GitHub policy) |
+| TS strict | types | tsconfig flags; `tsc --noEmit` in the gate |
+| Type-tier rules don't loosen | types + test | `*.test-d.ts` inside each tsconfig `include`, so the gate's `tsc` compiles them: exact `expectTypeOf<BoxProps['gap']>().toEqualTypeOf<Space \| undefined>()` (catches `\| (string & {})`), negative `assertType` under `@ts-expect-error` (an unused directive is TS2578). A loosened type passes every correct caller; only these notice. Use `assertType`, not an unused `const` — with `noUnusedLocals` the unused-variable error would satisfy the directive forever |
+| No hand-typed wire types | types | client types inferred from the router — a copy has nowhere to live |
+| Generated files current | script | committed; CI builds (codegen reruns) and fails on a dirty `git status --porcelain` |
+| No manual memoization | lint | `no-restricted-imports`: `useMemo`/`useCallback`/`memo` from `react` |
+| No `isPending` plumbing | lint (partial) | `no-restricted-imports`: `useQuery` → `useSuspenseQuery` / collections |
+| No raw layout elements | lint | `react/forbid-elements` (`div`, `section`, `span`…) with message → `Box`/`Row`/`Stack`; rule off inside `src/shared/ui/**` |
+| Token-only color | types + lint + script | prop unions · `@shadcn/lint`: `no-raw-colors` (palette classes like `bg-teal-600`, undeclared tokens, SVG `fill`/`stroke`), `no-unknown-classes` (typos; `bg-white`/`text-black` once `--color-*: initial`), `require-static-classes` (`` `bg-${tone}` `` can't be checked) · `check-tokens`: raw `#hex`/`rgb()`/`oklch()` outside class and style sites, raw channel bytes (PDF/canvas) |
+| No arbitrary values (`[400px]`, inline `style`) | lint | `no-arbitrary-values` (names the on-scale class; off inside `src/shared/ui/**`) · `no-inline-styles` |
+| Restyle limits (linted shadcn) | lint | `no-restyle`: `allow: ["layout"]` + per-component `contracts` → `design-system.md` |
+| Token-only type | lint + script | `no-arbitrary-values` on type classes (`text-[13px]`, `leading-[1.1]`) · grep components for raw `font-size`/`letter-spacing`/`line-height`/`font-family`; `em` allowlisted (context-relative: inline `code`, `sup`) |
+| Font loading | review | self-hosted variable woff2 · `preload` above-the-fold faces · fallback metrics measured per pair, not generated |
+| Logical direction only | script | grep `pl-`/`ml-`/`text-left`/`left-0`/`margin-left`… (`@shadcn/lint` has no direction rule) |
+| `unsafeClassName` bounded | ratchet | budget count |
+| Forms on-stack | lint | `no-restricted-imports`: `react-hook-form`, `formik` |
+| a11y | lint | `jsx-a11y` set |
+| Secrets stay server-side | boundaries | Start import protection fails `vite build`: `*.server.*` files, the `server-only` marker, `importProtection.client.specifiers` (`cloudflare:workers`). Dev only warns → the CI build is the gate |
+| Security set | lint + script | `react/no-danger` · `jsx-no-script-url` · `no-restricted-properties` on `process.env` · CI grep for `import.meta.env` → `security.md` |
+| Structure | boundaries | knip · depcruise (`app → features → components/lib`) |
+| One owner per capability | boundaries | depcruise `forbidden`: only `src/lib/http` imports the fetch client, only `src/lib/db` the driver; the exempt list is the ratchet |
+| No effect webs | lint (partial) | `no-restricted-imports` on `useEffect`/`useLayoutEffect` in `src/features/**`, with a message that names collections, `useSuspenseQuery`, event handlers and `useSyncExternalStore`; a disable comment must give the reason |
+| Persisted state through the helper | lint | `no-restricted-globals` + `no-restricted-properties` on `localStorage`/`sessionStorage`, off inside `src/lib/persisted*` |
+| Hermetic tests | config | Vitest setup: MSW unhandled strategy `'error'`; test script sets `TZ=UTC` and scrubs secret env |
+| Docs agents copy | script | `<!-- source: path#symbol -->` code blocks diffed against the source in `pnpm check` |
+| Gates reachable | script | `check-gates`: every lint config, rule pack, package test script, cooldown exemption and patch is reachable from `pnpm check`/CI and matches the lockfile |
+| Local/sidecar servers locked down | review | per-install secret, Host + Origin allowlists, WebSocket tickets → `security.md` §5 |
+| i18n key parity | types | `export const ar: Dict`, with `Dict = Widen<typeof en>` (bare `typeof en` of an `as const` object rejects every translation) |
+| Wide-event logging | lint (partial) | `no-console` error in `server/**`, allowed only in the logger module; one-event-per-request stays review |
+| Hooks ↔ CI no drift | construction | both run the same `pnpm check` |
+| Loader/component single query def | construction | collection / route `context()` → `data-and-typesafety.md` |
+| State ladder · realtime choice | review | judgment; no gate |
+
+## Ratchet
+
+Brownfield can't ban day 1. Instead: committed budgets `{ label, max, pattern, exempt, fix }` in a ~60-line no-dep script — fail when the count exceeds `max`, lower `max` when you convert (the failure prints the new number), never raise it. Greenfield: `max: 0` is a ban. Exempt `src/shared/ui/**` — raw elements inside a primitive are the point of the primitive. `fix` says what to write instead, so an agent hitting the gate self-corrects. An `exempt` entry that matches nothing fails the gate, so allowlists shrink with the code.
+
+**Lint rules ratchet per file × rule, not by one global count.** Commit a baseline `{ "path::rule": count }` built from `oxlint --format=json`: a new file has budget 0, no count may rise, and a fix that lowers one must update the baseline (a stale entry fails too), so the total only falls. Rules run at `error`; the baseline is the only exemption. A single `oxlint --max-warnings <count>` lets a fix in one file pay for a new violation in another.
+
+## Wiring
+
+Scripts run inside `pnpm check` (stage order → `agent-first-factory.md`). A new default lands with its row here — enforcer or `review`. Drift = a rule whose enforcer went missing; diff this table to notice.
