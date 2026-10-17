@@ -13,7 +13,7 @@ House standard for web frontends. Take the `Use` default; open the reference for
 
 **Defer, don't duplicate:** platform HTML/CSS/JS → `modern-web-guidance` · composition → `vercel-composition-patterns` · React perf → `vercel-react-best-practices` · motion → `web-animation-design`. The two `vercel-*` are companion skills — install them alongside this one (see README); if a target project doesn't have them, fall back to `modern-web-guidance` + first principles, don't inline their depth here.
 
-**Always-on layer:** a skill loads only when the agent thinks to load it, and long build tasks often don't. A project that adopts this standard also installs `templates/house-rules.md` as an always-on rule, with no `paths:` scoping (`.claude/rules/`, AGENTS.md; see `agent-first-factory.md`): the defaults agents drop mid-task, plus "load this skill before choosing an approach".
+**Always-on layer:** a skill loads only when the agent thinks to load it, and long build tasks often don't. A project that adopts this standard also installs `templates/house-rules.md` as an always-on rule, with no `paths:` scoping (`.claude/rules/`, AGENTS.md; see `agent-first-factory.md`): the defaults agents drop mid-task, plus "load this skill before choosing an approach". Claude Code reads AGENTS.md only when no CLAUDE.md exists, so check nothing in the repo writes one.
 
 **Reference implementation:** `ultimate-ts-starter` (`github.com/Amir-Abushanab/ultimate-ts-starter`) — copy patterns from it.
 
