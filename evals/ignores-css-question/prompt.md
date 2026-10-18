@@ -1,4 +1,5 @@
 ---
+plugins: ["../../plugin"]
 description: A platform-CSS bug shouldn't load the architecture skill, and the answer should still be right
 tags: [negative]
 allowed_tools: [Read, Glob, Grep, Skill]

@@ -2,14 +2,22 @@
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "modern-frontend-architecture",
   "description": "Direct-install marketplace for the modern-frontend-architecture skill. The full catalog lives at Amir-Abushanab/skills (amir-skills).",
-  "owner": { "name": "Amir Abushanab" },
+  "owner": {
+    "name": "Amir Abushanab"
+  },
   "plugins": [
     {
       "name": "modern-frontend-architecture",
-      "source": "./",
+      "source": "./plugin",
       "description": "House standard for architecting modern web frontends — type-safe, agent-first defaults for stack, data, state, styling, security, logging, i18n, and deploy.",
       "category": "development",
-      "keywords": ["frontend", "architecture", "react", "tanstack", "typescript"]
+      "keywords": [
+        "frontend",
+        "architecture",
+        "react",
+        "tanstack",
+        "typescript"
+      ]
     }
   ]
 }
