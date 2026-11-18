@@ -40,6 +40,7 @@ Push each rule as high as it goes; promote when a mechanism appears.
 | Structure | boundaries | knip · depcruise (`app → features → components/lib`) |
 | One owner per capability | boundaries | depcruise `forbidden`: only `src/lib/http` imports the fetch client, only `src/lib/db` the driver; the exempt list is the ratchet |
 | No effect webs | lint (partial) | `no-restricted-imports` on `useEffect`/`useLayoutEffect` in `src/features/**`, with a message that names collections, `useSuspenseQuery`, event handlers and `useSyncExternalStore`; a disable comment must give the reason |
+| `<StrictMode>` at the client root | script | grep the client entry (`src/client.tsx`, or Start's default entry when absent) for `<StrictMode>` |
 | Persisted state through the helper | lint | `no-restricted-globals` + `no-restricted-properties` on `localStorage`/`sessionStorage`, off inside `src/lib/persisted*` |
 | Hermetic tests | config | Vitest setup: MSW unhandled strategy `'error'`; test script sets `TZ=UTC` and scrubs secret env |
 | Docs agents copy | script | `<!-- source: path#symbol -->` code blocks diffed against the source in `pnpm check` |

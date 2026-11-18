@@ -14,6 +14,8 @@ surrounding pattern unless the task is already changing it, and mention the gap 
 - **Creates:** mint ids on the client (UUIDv7) and make server creates idempotent by id, so retries and double-taps
   are safe.
 - **Forms:** TanStack Form, validated with the wire's zod schema.
+- **Strict Mode:** keep `<StrictMode>` at the client root; when an effect breaks on its dev remount, add the missing
+  cleanup rather than removing Strict Mode.
 - **Persisted state:** go through a schema-validated, versioned `persisted()` helper rather than raw `localStorage`;
   older and newer builds write it, and one bad value can blank the app.
 - **Styling:** semantic tokens and logical direction (start/end); avoid raw px, hex and font sizes in components.
